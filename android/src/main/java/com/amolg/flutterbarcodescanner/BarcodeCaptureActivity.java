@@ -109,12 +109,19 @@ public final class BarcodeCaptureActivity extends AppCompatActivity implements B
             setContentView(R.layout.barcode_capture);
 
             String buttonText = "";
+            int cameraId = -1;
             try {
                 buttonText = (String) getIntent().getStringExtra("cancelButtonText");
             } catch (Exception e) {
                 buttonText = "Cancel";
                 Log.e("BCActivity:onCreate()", "onCreate: " + e.getLocalizedMessage());
             }
+
+            try {
+                cameraId = (int) getIntent().getIntExtra("cameraId", -1);
+            } catch (Exception e) {
+            }
+
             imgViewBarcodeCaptureUseFlash = findViewById(R.id.imgViewBarcodeCaptureUseFlash);
             Button btnBarcodeCaptureCancel = findViewById(R.id.btnBarcodeCaptureCancel);
             btnBarcodeCaptureCancel.setText(buttonText);
@@ -132,7 +139,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity implements B
             // permission is not granted yet, request permission.
             int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
             if (rc == PackageManager.PERMISSION_GRANTED) {
-                createCameraSource(autoFocus, useFlash);
+                createCameraSource(autoFocus, useFlash, cameraId);
             } else {
                 requestCameraPermission();
             }
@@ -193,7 +200,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity implements B
      * the constant.
      */
     @SuppressLint("InlinedApi")
-    private void createCameraSource(boolean autoFocus, boolean useFlash) {
+    private void createCameraSource(boolean autoFocus, boolean useFlash, int cameraId) {
         Context context = getApplicationContext();
 
         // A barcode detector is created to track barcodes.  An associated multi-processor instance
@@ -220,7 +227,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity implements B
         // to other detection examples to enable the barcode detector to detect small barcodes
         // at long distances.
         CameraSource.Builder builder = new CameraSource.Builder(getApplicationContext(), barcodeDetector)
-                .setFacing(CameraSource.CAMERA_FACING_BACK)
+                .setFacing(cameraId < 0 ? CameraSource.CAMERA_FACING_BACK: cameraId)
                 .setRequestedPreviewSize(1600, 1024)
                 .setRequestedFps(15.0f);
 
@@ -296,7 +303,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity implements B
             // we have permission, so create the camerasource
             boolean autoFocus = true;
             boolean useFlash = false;
-            createCameraSource(autoFocus, useFlash);
+            createCameraSource(autoFocus, useFlash,-1);
             return;
         }
 

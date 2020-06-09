@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_plugin_android_lifecycle: ^1.0.7
+  camera: ^0.5.8+2
 
 
 # For information on the generic Dart part of this file, see the

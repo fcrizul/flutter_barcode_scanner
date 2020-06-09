@@ -114,17 +114,21 @@ public class FlutterBarcodeScannerPlugin implements MethodCallHandler, ActivityR
                 }
 
                 isContinuousScan = (boolean) arguments.get("isContinuousScan");
+                int cameraId = -1;
+                if (null != arguments.get("cameraId")) {
+                    cameraId = (int) arguments.get("cameraId");
+                }
 
-                startBarcodeScannerActivityView((String) arguments.get("cancelButtonText"), isContinuousScan);
+                startBarcodeScannerActivityView((String) arguments.get("cancelButtonText"), isContinuousScan, cameraId);
             }
         } catch (Exception e) {
             Log.e(TAG, "onMethodCall: " + e.getLocalizedMessage());
         }
     }
 
-    private void startBarcodeScannerActivityView(String buttonText, boolean isContinuousScan) {
+    private void startBarcodeScannerActivityView(String buttonText, boolean isContinuousScan, int cameraId) {
         try {
-            Intent intent = new Intent(activity, BarcodeCaptureActivity.class).putExtra("cancelButtonText", buttonText);
+            Intent intent = new Intent(activity, BarcodeCaptureActivity.class).putExtra("cancelButtonText", buttonText).putExtra("cameraId", cameraId);
             if (isContinuousScan) {
                 activity.startActivity(intent);
             } else {

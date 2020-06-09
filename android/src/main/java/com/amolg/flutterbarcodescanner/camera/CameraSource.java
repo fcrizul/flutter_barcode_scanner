@@ -189,7 +189,8 @@ public class CameraSource {
          * {@link #CAMERA_FACING_FRONT}). Default: back facing.
          */
         public Builder setFacing(int facing) {
-            if ((facing != CAMERA_FACING_BACK) && (facing != CAMERA_FACING_FRONT)) {
+            //if ((facing != CAMERA_FACING_BACK) && (facing != CAMERA_FACING_FRONT)) {
+            if (facing < 0) {
                 throw new IllegalArgumentException("Invalid camera: " + facing);
             }
             mCameraSource.mFacing = facing;
@@ -764,6 +765,7 @@ public class CameraSource {
      */
     private static int getIdForRequestedCamera(int facing) {
         CameraInfo cameraInfo = new CameraInfo();
+
         for (int i = 0; i < Camera.getNumberOfCameras(); ++i) {
             Camera.getCameraInfo(i, cameraInfo);
             if (cameraInfo.facing == facing) {
