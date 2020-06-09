@@ -14,10 +14,12 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _scanBarcode = 'Unknown';
+  List<CameraDescription> cameras;
 
   @override
   void initState() {
     super.initState();
+
   }
 
   startBarcodeScanStream() async {
@@ -69,13 +71,13 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  Future<void> scanBarcodeNormalWithCamera() async {
+  Future<void> scanBarcodeNormalWithCamera(int index) async {
     String barcodeScanRes;
-    List<CameraDescription> cameras = await availableCameras();
+
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          "#ff6666", "Cancel", true, ScanMode.BARCODE, camera: cameras[1]);
+          "#ff6666", "Cancel", true, ScanMode.BARCODE, camera: cameras[index]);
       print(barcodeScanRes);
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
@@ -89,6 +91,11 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _scanBarcode = barcodeScanRes;
     });
+  }
+
+  Future getAvailableCameras() async {
+    cameras = await availableCameras();
+    return cameras;
   }
 
   @override
@@ -112,9 +119,31 @@ class _MyAppState extends State<MyApp> {
                         RaisedButton(
                             onPressed: () => startBarcodeScanStream(),
                             child: Text("Start barcode scan stream")),
-                        RaisedButton(
-                            onPressed: () => scanBarcodeNormalWithCamera(),
-                            child: Text("Start barcode scan with camera")),
+                        Text("Cameras"),
+                        Expanded(
+                          child:FutureBuilder(
+                            builder: (context, snap) {
+                                if (!snap.hasData) {
+                                  return Container(
+                                    child: SizedBox(
+                                      height: 30,
+                                    ),
+                                  );
+                                }
+                                return ListView.builder(
+                                      padding: const EdgeInsets.all(8),
+                                      itemCount: snap.data.length,
+                                      itemBuilder: (BuildContext context, int index) {
+                                        return RaisedButton(
+                                            onPressed: () => scanBarcodeNormalWithCamera(index),
+                                            child: Text("Start barcode scan with camera " + snap.data[index].name)
+                                        );
+                                      }
+                                  );
+                              },
+                            future: getAvailableCameras(),
+                          ),
+                        ),
                         Text('Scan result : $_scanBarcode\n',
                             style: TextStyle(fontSize: 20))
                       ]));
